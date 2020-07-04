@@ -10,7 +10,7 @@ rl.on('line', (line) => {
 // 判斷數字幾位數
 function Digits(the) {
   let result = 0;
-  let see = the;// 因為eslint禁止對函數再賦值，所以另外宣告變數
+  let see = the;// 因為eslint禁止對參數再賦值，所以另外宣告變數
   while (see !== 0) {
     see = Math.floor(see / 10);// 用 "n = ( n 幹嘛幹嘛)"" 來記錄 n 的值，這樣就不需在另外宣告變數
     result += 1;
