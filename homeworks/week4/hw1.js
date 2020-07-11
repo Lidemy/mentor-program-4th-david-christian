@@ -1,4 +1,3 @@
-/* eslint import/no-unresolved: 0 */
 const request = require('request');
 
 const API_URL = 'https://lidemy-book-store.herokuapp.com';
