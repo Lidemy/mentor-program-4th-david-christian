@@ -19,6 +19,13 @@ module.exports = {
   plugins: [
     'react',
   ],
+  settings: {
+    'import/resolver': {
+      webpack: {
+        config: './path/to/your/webpack.config.js',
+      },
+    },
+  },
   rules: {
     "no-console": "off"
   },
