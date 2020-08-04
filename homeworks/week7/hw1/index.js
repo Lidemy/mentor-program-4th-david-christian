@@ -64,23 +64,23 @@ document
     for (const element of elements) {
       const radios = element.querySelectorAll('input[type=radio]');
       if (!radios.length) continue;
-      let flag = false;
-      for (const start of radios) {
-        console.log(start);
-        if (start.checked) {
-          flag = true;
+      const hasNovalue = (checkvalue) => {
+        for (const start of checkvalue) {
+          if (start.checked) {
+            return true;
+          }
         }
-        if (flag) {
-          document.querySelector('.imput__caveat_radio')
-            .innerText = '';
-          const r = element.querySelector('input[type=radio]:checked');
-          valuefrom[r.name] = r.value;
-        }
-        if (!flag) {
-          document.querySelector('.imput__caveat_radio')
-            .innerText = radioCaveat;
-          hasErro = true;
-        }
+        return false;
+      };
+      if (!hasNovalue(radios)) {
+        document.querySelector('.imput__caveat_radio')
+          .innerText = radioCaveat;
+        hasErro = true;
+      } else if (hasNovalue(radios)) {
+        document.querySelector('.imput__caveat_radio')
+          .innerText = '';
+        const r = element.querySelector('input[type=radio]:checked');
+        valuefrom[r.name] = r.value;
       }
     }
     if (!hasErro) {
