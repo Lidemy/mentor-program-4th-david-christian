@@ -1,0 +1,25 @@
+* {
+  font-family: Questrial, “Microsoft YaHei”, "微軟正黑體";
+}
+
+.memorandum {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 30px 50px;
+}
+
+.memorandum__title {
+  text-align: center;
+}
+
+.memorandum__block {
+  margin-top: 30px;
+}
+
+.side {
+  display: inline-block;
+}
+
+.memorandum__delete {
+  float: right;
+}
