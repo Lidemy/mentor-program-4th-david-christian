@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Todo List</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.">
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+  <style>
+    .btn-primary, .btn-warning, .btn-outline-primary, .btn-outline-danger, .btn-outline-secondary {
+      margin-top: 12px;
+    }
+
+    .btn-danger {
+      float: right;
+    }
+
+    .btn-secondary, .btn-dark {
+      float: right;
+      margin-right: 10px;
+    }
+
+    .form-check {
+      margin-top: 36px;
+    }
+
+    .form-edit, .btn-info {
+      margin-top: 20px;
+    }
+
+  </style>
+  <script>
+    console.log(jQuery)
+  </script>
+  
+</head>
+<body>
+  <div class="container">
+    <h1>Todo List</h1>
+    <form class="todo-list-form">
+      <div class="form-group">
+        <input name="matter" type="text" class="form-control" id="matter" placeholder="輸入待辦事項">
+        <button type="button" class="btn btn-primary">新增事項</button>
+        <button type="button" class="btn btn-warning">全部清空</button>
+        <button type="button" class="btn btn-outline-primary">完成</button>
+        <button type="button" class="btn btn-outline-danger">未完成</button>
+        <button type="button" class="btn btn-outline-secondary">全部</button>
+      </div>
+      <div class="todos">
+      </div>
+    </form>
+  </div>  
+  <script>
+    function escapeHtml(unsafe) {
+      return unsafe
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+    }
+    // 新增
+    $('.container').on('click', '.btn-primary', (e) => {
+        const value = $('.form-control').val()
+        $('.form-control').val('')
+        $('.todos').append(`
+          <div class="form-check" name="not">
+            <label class="form-check-label" for="defaultCheck1">
+              ${escapeHtml(value)}
+            </label>
+            <button type="button" class="btn btn-sm btn-danger">刪除</button>
+            <button type="button" class="btn btn-sm btn-secondary">編輯</button>
+            <button type="button" class="btn btn-sm btn-dark">標記完成</button>
+          </div>
+        `)
+    })
+
+    // 刪除
+    $('.container').on('click', '.btn-danger', (e) => {
+      $(e.target).parent().fadeOut()
+    })
+
+    // 全部清空
+    $('.btn-warning').click(() => {
+      $('.todos').empty();
+    })
+
+    //編輯
+    $('.container').on('click', '.btn-secondary', (e) => {
+      $(e.target).parent().append(`
+      <input name="edit" type="text" class="form-edit form-control" id="edit" placeholder="輸入編輯內容">
+      <button type="button" class="btn btn-info">完成</button>
+      `)
+    })
+    $('.container').on('click', '.btn-info', (e) => {
+      const edit = $('.form-edit').val()
+      $(e.target).parent().html(`
+        <label class="form-check-label" for="defaultCheck1">
+          ${escapeHtml(edit)}
+        </label>
+        <button type="button" class="btn btn-sm btn-danger">刪除</button>
+        <button type="button" class="btn btn-sm btn-secondary">編輯</button>
+        <button type="button" class="btn btn-sm btn-dark">標記完成</button>
+      `)
+    })
+
+    // 標記完成/未完成
+    $('.todos').on('click', '.btn-dark', (e) => {
+      const todo = $(e.target).parent();
+      if (todo.hasClass('completed')) {
+        todo.css('color', 'black')
+        todo.removeClass('completed')
+        todo.attr("name", "not")
+        $(e.target).text('標記完成')
+      } else {
+        todo.css('color', 'green')
+        todo.addClass('completed')
+        todo.attr("name", "ok")
+        $(e.target).text('標記未完成')
+      }  
+    })
+
+    // 篩選
+    $('.container').on('click', '.btn-outline-primary', (e) => {
+      $("div[name*='not']").hide()
+      $("div[name*='ok']").show()
+    })
+    $('.container').on('click', '.btn-outline-danger', (e) => {
+      $("div[name*='ok']").hide()
+      $("div[name*='not']").show()
+    })
+    $('.container').on('click', '.btn-outline-secondary', (e) => {
+      $("div[name*='ok']").show()
+      $("div[name*='not']").show()
+    })
+  </script>
+</body>
+</html>
