@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
     integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
   <style>
-    .btn-primary, .btn-warning, .btn-outline-primary, .btn-outline-danger, .btn-outline-secondary {
+    .btn-primary, .btn-warning, .btn-outline-primary, .btn-outline-danger, .btn-outline-secondary, .btn-light {
       margin-top: 12px;
     }
 
@@ -30,10 +30,6 @@
     }
 
   </style>
-  <script>
-    console.log(jQuery)
-  </script>
-  
 </head>
 <body>
   <div class="container">
@@ -41,11 +37,12 @@
     <form class="todo-list-form">
       <div class="form-group">
         <input name="matter" type="text" class="form-control" id="matter" placeholder="輸入待辦事項">
-        <button type="button" class="btn btn-primary">新增事項</button>
-        <button type="button" class="btn btn-warning">全部清空</button>
+        <button type="button" class="btn btn-primary todo-add">新增事項</button>
+        <button type="button" class="btn btn-warning todo-empty">全部清空</button>
         <button type="button" class="btn btn-outline-primary">完成</button>
         <button type="button" class="btn btn-outline-danger">未完成</button>
         <button type="button" class="btn btn-outline-secondary">全部</button>
+        <button type="button" class="btn btn-light todo-save">Save</button>
       </div>
       <div class="todos">
       </div>
@@ -60,53 +57,96 @@
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#039;');
     }
+    // 依照 isDone 的狀態，分辨完成與未完成
+    function readyTodos (todos) {
+      for(let i = 0; i < todos.length; i++) {
+        let todo = todos[i]
+        if (todo.isDone === "not") {
+          $('.todos').append(`
+            <div class="todo form-check" name="not">
+              <label class="todo-content form-check-label" for="defaultCheck1">${escapeHtml(todo.content)}</label>
+              <button type="button" class="btn btn-sm btn-danger mastter-deleter">刪除</button>
+              <button type="button" class="btn btn-sm btn-secondary mastter-edit">編輯</button>
+              <button type="button" class="btn btn-sm btn-dark mastter-check">標記完成</button>
+            </div>
+          `)
+        }
+        if (todo.isDone === "ok") {
+          $('.todos').append(`
+            <div class="todo form-check completed" name="ok" style="color: green;">
+              <label class="todo-content form-check-label" for="defaultCheck1">${escapeHtml(todo.content)}</label>
+              <button type="button" class="btn btn-sm btn-danger mastter-deleter">刪除</button>
+              <button type="button" class="btn btn-sm btn-secondary mastter-edit">編輯</button>
+              <button type="button" class="btn btn-sm btn-dark mastter-check">標記未完成</button>
+            </div>
+          `)
+        }
+      }
+    }
+
+    // 拿到當前頁面的url，然後指定要 id 的值 參考範例上的
+    const searchParams = new URLSearchParams(window.location.search)
+    const todoId = searchParams.get('id')
+
+    if (todoId) {
+      $.getJSON('http://mentor-program.co/mtr04group3/david-christian/week12/hw2/get_todo.php?id=' + todoId, 
+      function(data) {
+        const todos = JSON.parse(data.todo.todo)
+        readyTodos(todos)
+      })
+    }
     // 新增
-    $('.container').on('click', '.btn-primary', (e) => {
+    $('.container').on('click', '.todo-add', (e) => {
         const value = $('.form-control').val()
         $('.form-control').val('')
         $('.todos').append(`
-          <div class="form-check" name="not">
-            <label class="form-check-label" for="defaultCheck1">
-              ${escapeHtml(value)}
-            </label>
-            <button type="button" class="btn btn-sm btn-danger">刪除</button>
-            <button type="button" class="btn btn-sm btn-secondary">編輯</button>
-            <button type="button" class="btn btn-sm btn-dark">標記完成</button>
+          <div class="todo form-check" name="not">
+            <label class="todo-content form-check-label" for="defaultCheck1">${escapeHtml(value)}</label>
+            <button type="button" class="btn btn-sm btn-danger mastter-deleter">刪除</button>
+            <button type="button" class="btn btn-sm btn-secondary mastter-edit">編輯</button>
+            <button type="button" class="btn btn-sm btn-dark mastter-check">標記完成</button>
           </div>
         `)
     })
 
     // 刪除
-    $('.container').on('click', '.btn-danger', (e) => {
+    $('.container').on('click', '.mastter-deleter', (e) => {
       $(e.target).parent().fadeOut()
     })
 
     // 全部清空
-    $('.btn-warning').click(() => {
+    $('.todo-empty').click(() => {
       $('.todos').empty();
     })
 
     //編輯
-    $('.container').on('click', '.btn-secondary', (e) => {
-      $(e.target).parent().append(`
-      <input name="edit" type="text" class="form-edit form-control" id="edit" placeholder="輸入編輯內容">
-      <button type="button" class="btn btn-info">完成</button>
-      `)
+    $('.container').on('click', '.mastter-edit', (e) => {
+      const block = $(e.target).parent()
+      if (block.hasClass('completed')) {
+        alert('完成項目不能編輯')
+      } else if (!block.hasClass('check')){
+        let text = $(e.target).prev().prev().text()
+        block.append(`
+          <input name="edit" type="text" class="form-edit form-control" id="edit" value=${text}>
+          <button type="button" class="btn btn-info mastter-complete">完成</button>
+        `)
+        block.addClass('check') // check 作為判斷該則留言是不是已經有編輯的input，已防止使用者一直按編輯，一直增加input
+      }
     })
-    $('.container').on('click', '.btn-info', (e) => {
-      const edit = $('.form-edit').val()
-      $(e.target).parent().html(`
-        <label class="form-check-label" for="defaultCheck1">
-          ${escapeHtml(edit)}
-        </label>
-        <button type="button" class="btn btn-sm btn-danger">刪除</button>
-        <button type="button" class="btn btn-sm btn-secondary">編輯</button>
-        <button type="button" class="btn btn-sm btn-dark">標記完成</button>
+    $('.container').on('click', '.mastter-complete', (e) => {
+      const block = $(e.target).parent()
+      let edit = $('.form-edit').val()
+      block.html(`
+        <label class="todo-content form-check-label" for="defaultCheck1">${escapeHtml(edit)}</label>
+        <button type="button" class="btn btn-sm btn-danger mastter-deleter">刪除</button>
+        <button type="button" class="btn btn-sm btn-secondary mastter-edit">編輯</button>
+        <button type="button" class="btn btn-sm btn-dark mastter-check">標記完成</button>
       `)
+      block.removeClass('check')
     })
 
     // 標記完成/未完成
-    $('.todos').on('click', '.btn-dark', (e) => {
+    $('.todos').on('click', '.mastter-check', (e) => {
       const todo = $(e.target).parent();
       if (todo.hasClass('completed')) {
         todo.css('color', 'black')
@@ -133,6 +173,47 @@
     $('.container').on('click', '.btn-outline-secondary', (e) => {
       $("div[name*='ok']").show()
       $("div[name*='not']").show()
+    })
+
+    //點下 save 就將資料包起來儲存
+    $('.todo-save').click((e) => {
+      let todos = []
+      $('.todo').each((i, element) => {
+        const content = $(element).find('.todo-content')
+        const check = $(element).find('.mastter-check')
+        todos.push({
+          content: content.text(), 
+          isDone: $(element).attr('name')
+        })
+      })
+
+      const result = JSON.stringify(todos)
+      // 分辨當下的網址有沒有帶id，如果有就更新資料，沒有就新增資料。
+      if (todoId) {
+        $.ajax({
+          type: 'POST', 
+          url:'http://mentor-program.co/mtr04group3/david-christian/week12/hw2/update_todo.php?id=' + todoId, 
+          data: {
+            todo: result, 
+            id: todoId
+          }
+        })
+      } else {
+          $.ajax({
+          type: 'POST', 
+          url:'http://mentor-program.co/mtr04group3/david-christian/week12/hw2/add_todo.php', 
+          data: {
+            todo: result
+          }, 
+          success: (resp) => {
+            const userId = resp.id
+            window.location = `index.html?id=${userId}`
+          }, 
+          error: (err) => {
+            alert('error')
+          }
+        }) 
+      }
     })
   </script>
 </body>
